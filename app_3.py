@@ -34,9 +34,6 @@ class ItemUpdate(ItemCreate):
 # Inicializar la aplicación FastAPI
 app = FastAPI()
 
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
 
 # Operaciones CRUD
 
