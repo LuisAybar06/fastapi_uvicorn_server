@@ -15,14 +15,15 @@ items = Table("items", metadata, autoload_with=engine)
 # Configurar la sesión de SQLAlchemy
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+#autocommit=False: Debes confirmar los cambios manualmente con session.commit()
+#autoflush=False: Los cambios no se envían automáticamente antes de una consulta; debes hacerlo manualmente si lo deseas.
+#bind=engine: Asocia la sesión a un motor de base de datos específico, permitiendo que la sesión realice operaciones sobre esa base de datos.
+
 # Definir los modelos Pydantic
 class Item(BaseModel):
     id: int
     name: str
     description: str = None
-
-    class Config:
-        orm_mode = True
 
 class ItemCreate(BaseModel):
     name: str
@@ -47,19 +48,30 @@ def read_item(item_id: int):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
         return db_item._mapping
 
-# Crear un nuevo elemento en la tabla
 @app.post("/items/", response_model=Item)
 def create_item(item: ItemCreate):
     with SessionLocal() as session:
-        new_item = items.insert().values(name=item.name, description=item.description)
-        result = session.execute(new_item)
-        session.commit()
-        created_item_id = result.inserted_primary_key[0]
-        created_item = session.execute(select(items).where(items.c.id == created_item_id)).fetchone()
-        return created_item._mapping
+        try:
+            # Preparar la inserción del nuevo elemento
+            new_item = items.insert().values(name=item.name, description=item.description)
+            # Ejecutar la inserción
+            result = session.execute(new_item)
+            # Confirmar los cambios
+            session.commit()
+            # Obtener el ID del nuevo elemento
+            created_item_id = result.inserted_primary_key[0]
+            # Consultar el elemento recién creado
+            created_item = session.execute(select(items).where(items.c.id == created_item_id)).fetchone()
+            return created_item._mapping
+        
+        except Exception as e:
+            # Si ocurre un error, revertir los cambios
+            session.rollback()
+            raise HTTPException(status_code=400, detail=str(e))
+
 
 # Actualizar un elemento existente en la tabla
-@app.put("/items/{item_id}", response_model=Item)
+@app.patch("/items/{item_id}", response_model=Item)
 def update_item(item_id: int, item: ItemUpdate):
     with SessionLocal() as session:
         update_values = {k: v for k, v in item.dict().items() if v is not None}

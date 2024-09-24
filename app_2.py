@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import databases
 import sqlalchemy
+from contextlib import asynccontextmanager
 
 DATABASE_URL = "sqlite:///./test.db"
 database = databases.Database(DATABASE_URL)
@@ -25,13 +26,17 @@ class Item(BaseModel):
     name: str
     description: str = None
 
-@app.on_event("startup")
-async def startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
     await database.connect()
-
-@app.on_event("shutdown")
-async def shutdown():
+    yield
+    # Shutdown
     await database.disconnect()
+
+app.add_event_handler("startup", lambda: database.connect())
+app.add_event_handler("shutdown", lambda: database.disconnect())
+app.dependency_overrides[database] = lifespan
 
 @app.get("/")
 def read_root():
