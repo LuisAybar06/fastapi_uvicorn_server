@@ -1,6 +1,5 @@
 fastapi
 uvicorn
-pyngrok
 databases
 sqlalchemy
 aiosqlite
