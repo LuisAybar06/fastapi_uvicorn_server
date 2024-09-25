@@ -36,7 +36,7 @@ class ItemUpdate(ItemCreate):
 app = FastAPI()
 
 
-# Operaciones CRUD
+# Operaciones CRUD 
 
 # Leer un elemento específico de la tabla
 @app.get("/items/{item_id}", response_model=Item)

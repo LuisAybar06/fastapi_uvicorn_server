@@ -4,4 +4,4 @@ uvicorn app_1:app --reload
 
 uvicorn app_2:app --reload
 
-uvicorn app_3:app --reload
+uvicorn app_3:app --reload 

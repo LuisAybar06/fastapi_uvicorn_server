@@ -7,7 +7,7 @@ fake_db = {
     1: {"name": "Item 1", "description": "This is item 1.1"},
     2: {"name": "Item 2", "description": "This is item 2"}
 }
-
+ 
 @app.get("/")
 def read_root():
     return {"message": "Hello, World!"}

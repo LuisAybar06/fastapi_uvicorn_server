@@ -48,7 +48,7 @@ async def read_item(item_id: int):
     item = await database.fetch_one(query)
     if item is None:
         raise HTTPException(status_code=404, detail="Item not found")
-    return item
+    return item 
 
 @app.post("/items/")
 async def create_item(item: Item):
