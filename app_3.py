@@ -80,7 +80,7 @@ def update_item(item_id: int, item: ItemUpdate):
         session.commit()
         updated_item = session.execute(select(items).where(items.c.id == item_id)).fetchone()
         return updated_item._mapping
-
+ 
 # Eliminar un elemento de la tabla
 @app.delete("/items/{item_id}", response_model=Item)
 def delete_item(item_id: int):

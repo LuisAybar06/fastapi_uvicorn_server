@@ -49,7 +49,7 @@ async def read_item(item_id: int):
     if item is None:
         raise HTTPException(status_code=404, detail="Item not found")
     return item 
-
+ 
 @app.post("/items/")
 async def create_item(item: Item):
     query = items.insert().values(name=item.name, description=item.description)
